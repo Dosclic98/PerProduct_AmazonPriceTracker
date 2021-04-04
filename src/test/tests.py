@@ -4,26 +4,25 @@ import unittest
 from src.model.amazonItem import AmazonItem, AmazonItemEncoder
 from src.comp.amazonScraper import AmazonScraper
 import json
+from src.comp.itemsRepository import ItemRepo
 
 class UnitTesting(unittest.TestCase):
 
     def testSerializeDeserialize(self):
         scraper = AmazonScraper()
         foundItemsSet = scraper.searchItems("ssd", debug=False)
-        foundItems = list(foundItemsSet)
-        fp = open("testData.json", "w")
-        fp.write(json.dumps(foundItems, indent=4, cls=AmazonItemEncoder))
-        fp.close()
+        
+        repo = ItemRepo("testData.json")
+        repo.save(foundItemsSet)
+        repoSet = repo.load()
 
-        fp = open("testData.json", "r")
-        dic = json.load(fp)
-
+        foundItems = sorted(list(foundItemsSet), key=lambda x: x.id, reverse=True)
+        storedItems = sorted(list(repoSet), key=lambda x: x.id, reverse=True)
+        self.assertEqual(len(foundItems), len(storedItems))
         for i in range(len(foundItems)):
-            #print("Printing object " + str(i+1))
-            #print(foundItems[i])
-            #print(AmazonItem.jsonToObject(jsonDict=dic[i]))
-            #print("*************************************")
-            self.assertTrue(foundItems[i] == AmazonItem.jsonToObject(jsonDict=dic[i]))
+            print(foundItems[i])
+            print(storedItems[i])
+            self.assertEqual(foundItems[i], storedItems[i])        
 
 if __name__ == "__main__":
     unittest.main()

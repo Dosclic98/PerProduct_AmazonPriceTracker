@@ -58,6 +58,9 @@ class AmazonScraper:
 
         isPrime = False if len(div.findAll("i", {"class":"a-icon a-icon-prime a-icon-medium"})) == 0 else True
 
+        # Added for some edge cases where the used price gets read with "None" amount or currency
+        if(usedPrice != None and (usedPrice.amount_float == None or usedPrice.currency == None)): usedPrice = None
+        
         # Debug Tests
         if debug:
             print("Id: " + id)
