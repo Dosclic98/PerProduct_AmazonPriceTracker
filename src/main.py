@@ -3,25 +3,18 @@
 from src.model.amazonItem import AmazonItem, AmazonItemEncoder
 from src.comp.amazonScraper import AmazonScraper
 import json
+from src.comp.itemsRepository import ItemRepo
 
 def main():
     scraper = AmazonScraper()
     foundItemsSet = scraper.searchItems("ssd", debug=False)
-    foundItems = list(foundItemsSet)
-    fp = open("testData.json", "w")
-    fp.write(json.dumps(foundItems, indent=4, cls=AmazonItemEncoder))
-    fp.close()
-
-    fp = open("testData.json", "r")
-    dic = json.load(fp)
-
-    for i in range(5):
-        print("Printing object " + str(i+1))
-        print(foundItems[i])
-        print(AmazonItem.jsonToObject(jsonDict=dic[i]))
-        print(foundItems[i] == AmazonItem.jsonToObject(jsonDict=dic[i]))
-        print("*************************************")
-
+    
+    repo = ItemRepo("testData.json")
+    repo.save(foundItemsSet)
+    repoSet = repo.load()
+    for item in repoSet:
+        print(item)
+    print(len(repoSet))
 
 if __name__ == "__main__":
     main()
