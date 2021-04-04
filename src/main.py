@@ -1,13 +1,13 @@
 #!/usr/bin/python3
 
-from model.amazonItem import AmazonItem, AmazonItemEncoder
-from comp.amazonScraper import AmazonScraper
+from src.model.amazonItem import AmazonItem, AmazonItemEncoder
+from src.comp.amazonScraper import AmazonScraper
 import json
 
 def main():
-    scraper = AmazonScraper(None)
-    foundItems = scraper.searchItems("ssd", debug=False)
-
+    scraper = AmazonScraper()
+    foundItemsSet = scraper.searchItems("ssd", debug=False)
+    foundItems = list(foundItemsSet)
     fp = open("testData.json", "w")
     fp.write(json.dumps(foundItems, indent=4, cls=AmazonItemEncoder))
     fp.close()

@@ -27,7 +27,7 @@ class AmazonItem:
                             datetime.datetime.fromisoformat(jsonDict[AmazonItemKeys.ueDate]))
     
     def __str__(self):
-        return AmazonItemKeys.id + ": " + self.id + "\n" + AmazonItemKeys.imgLink + ": " + self.imgLink + "\n" + AmazonItemKeys.objLink + ": " + self.objLink + "\n" + AmazonItemKeys.title + ": " + self.title + "\n" + AmazonItemKeys.stars + ": " + str(self.stars) + "\n" + AmazonItemKeys.price + ": " + str(self.price) + "\n" + AmazonItemKeys.usedPrice + ": " + str(self.usedPrice) + "\n" + AmazonItemKeys.isPrime + ": " + str(self.isPrime) + AmazonItemKeys.ueDate + ": " + self.ueDate.isoformat() + "\n"
+        return AmazonItemKeys.id + ": " + self.id + "\n" + AmazonItemKeys.imgLink + ": " + self.imgLink + "\n" + AmazonItemKeys.objLink + ": " + self.objLink + "\n" + AmazonItemKeys.title + ": " + self.title + "\n" + AmazonItemKeys.stars + ": " + str(self.stars) + "\n" + AmazonItemKeys.price + ": " + str(self.price) + "\n" + AmazonItemKeys.usedPrice + ": " + str(self.usedPrice) + "\n" + AmazonItemKeys.isPrime + ": " + str(self.isPrime) + "\n" + AmazonItemKeys.ueDate + ": " + self.ueDate.isoformat() + "\n"
     
     def __eq__(self, other):
         if isinstance(other, AmazonItem):
@@ -35,6 +35,9 @@ class AmazonItem:
             isUsedPriceEqual = self.isPriceEq(self.usedPrice, other.usedPrice)
             return self.id == other.id and self.title == other.title and self.stars == other.stars and self.objLink == other.objLink and self.imgLink == other.imgLink and isPriceEqual and isUsedPriceEqual and self.isPrime == other.isPrime and self.ueDate.isoformat() == other.ueDate.isoformat()
         return False
+
+    def __hash__(self):
+        return hash(self.id)
     
     def isPriceEq(self, thisPrice, thatPrice):
         if(thisPrice is not None and thatPrice is not None):
