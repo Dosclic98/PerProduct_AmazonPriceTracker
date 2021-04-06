@@ -20,9 +20,7 @@ class UnitTesting(unittest.TestCase):
         storedItems = sorted(list(repoSet), key=lambda x: x.id, reverse=True)
         self.assertEqual(len(foundItems), len(storedItems))
         for i in range(len(foundItems)):
-            print(foundItems[i])
-            print(storedItems[i])
-            self.assertEqual(foundItems[i], storedItems[i])        
+            self.assertTrue(foundItems[i].identical(storedItems[i]))        
 
 if __name__ == "__main__":
     unittest.main()

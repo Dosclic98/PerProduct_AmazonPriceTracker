@@ -31,14 +31,22 @@ class AmazonItem:
     
     def __eq__(self, other):
         if isinstance(other, AmazonItem):
-            isPriceEqual = self.isPriceEq(self.price, other.price)
-            isUsedPriceEqual = self.isPriceEq(self.usedPrice, other.usedPrice)
-            return self.id == other.id and self.title == other.title and self.stars == other.stars and self.objLink == other.objLink and self.imgLink == other.imgLink and isPriceEqual and isUsedPriceEqual and self.isPrime == other.isPrime and self.ueDate.isoformat() == other.ueDate.isoformat()
+            return self.__hash__() == other.__hash__()
         return False
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
 
     def __hash__(self):
         return hash(self.id)
     
+    def identical(self, other):
+        if isinstance(other, AmazonItem):
+            isPriceEqual = self.isPriceEq(self.price, other.price)
+            isUsedPriceEqual = self.isPriceEq(self.usedPrice, other.usedPrice)
+            return self.id == other.id and self.title == other.title and self.stars == other.stars and self.objLink == other.objLink and self.imgLink == other.imgLink and isPriceEqual and isUsedPriceEqual and self.isPrime == other.isPrime and self.ueDate.isoformat() == other.ueDate.isoformat()
+        return False        
+
     def isPriceEq(self, thisPrice, thatPrice):
         if(thisPrice is not None and thatPrice is not None):
             return thisPrice.amount_float == thatPrice.amount_float and thisPrice.currency == thatPrice.currency
