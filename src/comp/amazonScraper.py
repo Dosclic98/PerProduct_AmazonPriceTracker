@@ -23,6 +23,13 @@ class AmazonScraper:
             "Upgrade-Insecure-Requests":"1",
             "Content-Type": "text/html"
         }
+    
+    def searchItemsMultiple(self, queryStrList, debug = False):
+        setToRet = set()
+        for queryStr in queryStrList:
+            foundItems = self.searchItems(queryStr, debug)
+            setToRet = setToRet.union(foundItems)
+        return setToRet
 
     def searchItems(self, queryStr, debug = False):
         foundItems = set()
