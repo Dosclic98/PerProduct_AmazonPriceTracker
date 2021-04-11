@@ -23,7 +23,8 @@ class AmazonScraper:
             "Upgrade-Insecure-Requests":"1",
             "Content-Type": "text/html"
         }
-    
+    # TODO Add method to get items from multiple pages or making more requests or extending the number of items per page
+
     def searchItemsMultiple(self, queryStrList, debug = False):
         setToRet = set()
         for queryStr in queryStrList:
