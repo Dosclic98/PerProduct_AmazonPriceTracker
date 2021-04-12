@@ -20,7 +20,7 @@ class TeleBotSender:
         self.bot = Bot(self.key)
     
     @sleep_and_retry
-    @limits(calls=23, period=60)
+    @limits(calls=19, period=60)
     def sendMessage(self, pair):
         pinEmoji = "\U0001f4cc"
         failures = 0
@@ -55,19 +55,19 @@ class MessageBuilder:
         baseStr = MessageBuilder.redDotEmoji + " <b>Nuovo prodotto trovato!</b>\n\n"
         if(obj.title != None):
             baseStr += "<b>" + obj.title + "</b>" + "\n\n"
-        priceStr = MessageBuilder.moneyEmoji + "  Prezzo nuovo:  {}\n"
-        usedPriceStr = MessageBuilder.moneyEmoji + "  Prezzo usato:   {}\n"
+        priceStr = "\n" + MessageBuilder.moneyEmoji + "  Prezzo nuovo:  {}"
+        usedPriceStr = "\n" + MessageBuilder.moneyEmoji + " Prezzo usato:   {}"
         if(obj.price != None and obj.price.amount_float != None and obj.price.currency != None):
             baseStr += priceStr.format(str(obj.price.amount_float) + " " + str(obj.price.currency))
         if(obj.usedPrice != None and obj.usedPrice.amount_float != None and obj.usedPrice.currency != None):
             baseStr += usedPriceStr.format(str(obj.usedPrice.amount_float) + " " + str(obj.usedPrice.currency))
 
-        starsStr = MessageBuilder.starEmoji + "  {}"+ " / 5" +"\n"
+        starsStr = "\n" + MessageBuilder.starEmoji + "  {}"+ " / 5"
         if(obj.stars != None):
             baseStr += starsStr.format(str(obj.stars))
         
         if(obj.isPrime):
-            baseStr += MessageBuilder.deliveryEmoji + "  Spedizione Prime"
+            baseStr += "\n" + MessageBuilder.deliveryEmoji + "  Spedizione Prime"
 
         if(obj.imgLink != None):
             baseStr += '<a href="'+ obj.imgLink +'">&#8205;</a>'
