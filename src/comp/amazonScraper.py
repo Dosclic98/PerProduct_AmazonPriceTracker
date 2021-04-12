@@ -13,7 +13,8 @@ class AmazonScraper:
     baseUrlRedirect = "https://www.amazon.it"
     baseUrl = baseUrlRedirect + "/"
     searchUrlPart = "s?"
-    searchKey = "k="    
+    searchKey = "k"    
+    pageParam = "&ref=sr_pg_"
     headers = {
             "User-Agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:66.0) Gecko/20100101 Firefox/66.0", 
             "Accept-Encoding":"gzip, deflate", 
@@ -23,19 +24,30 @@ class AmazonScraper:
             "Upgrade-Insecure-Requests":"1",
             "Content-Type": "text/html"
         }
-    # TODO Add method to get items from multiple pages or making more requests or extending the number of items per page
+    affInfoPathFile = "./data/aff/affInfo.json"
 
-    def searchItemsMultiple(self, queryStrList, debug = False):
+    def searchItemsMultipleQuery(self, queryStrList, debug = False):
         setToRet = set()
         for queryStr in queryStrList:
-            foundItems = self.searchItems(queryStr, debug)
+            foundItems = self.searchItems(queryStr, debug=debug)
             setToRet = setToRet.union(foundItems)
         return setToRet
 
-    def searchItems(self, queryStr, debug = False):
-        foundItems = set()
+    def searchItemsMultiplePage(self, queryStr, maxPage = 1, debug = False):
+        setToRet = set()
+        for numPage in range(1, maxPage + 1):
+            foundItems = self.searchItems(queryStr, page=numPage, debug=debug)
+            setToRet = setToRet.union(foundItems)
+        return setToRet
 
-        complUrl = self.baseUrl + self.searchUrlPart + self.searchKey + urllib.parse.quote_plus(queryStr)
+
+    def searchItems(self, queryStr, page = 1, debug = False):
+        if page < 1:
+            raise ValueError("Parameter page must be greater than 0")
+
+        foundItems = set()
+        
+        complUrl = self.baseUrl + self.searchUrlPart + self.searchKey + "=" + urllib.parse.quote_plus(queryStr) + self.pageParam + str(page)
         r = requests.get(complUrl, headers=self.headers)
         soup = BeautifulSoup(r.content, features="html5lib")
         
@@ -43,11 +55,33 @@ class AmazonScraper:
             foundItems.add(self.initItemFromDiv(div, debug=debug))
         return foundItems
 
+    def genAffLink(self, linkTitle):
+        if linkTitle["href"] == None:
+            return None
+        else:
+            affTag = json.load(open(self.affInfoPathFile))
+            objLinkAsUrl = list(urllib.parse.urlparse(self.baseUrlRedirect + linkTitle["href"]))
+            query = dict(urllib.parse.parse_qsl(objLinkAsUrl[4]))
+            query.update(affTag)
+            objLinkAsUrl[4] = urllib.parse.urlencode(query)
+            finalLink = None
+            try:
+                link = query["url"]
+                linkAsUrl = list(urllib.parse.urlparse(self.baseUrlRedirect + link))
+                realQuery = dict(urllib.parse.parse_qsl(linkAsUrl[4]))
+                realQuery.update(affTag)
+                linkAsUrl[4] = urllib.parse.urlencode(realQuery)    
+                finalLink =  urllib.parse.urlunparse(linkAsUrl)
+            except KeyError:
+                finalLink = urllib.parse.urlunparse(objLinkAsUrl)
+
+            return finalLink     
+
     def initItemFromDiv(self, div, debug=False):
         id = div["data-asin"]
         imgLink = div.findAll("img")[0]["src"]
         linkTitle = div.findAll("a", {"class":"a-link-normal a-text-normal"})[0]
-        objLink = self.baseUrlRedirect + linkTitle["href"]
+        objLink = self.genAffLink(linkTitle)
         title = linkTitle.findAll("span", {"class":"a-size-base-plus a-color-base a-text-normal"})[0].get_text()
         starsCont = div.findAll("span", {"class":"a-icon-alt"})
         stars = self.parseStarStr(None 
