@@ -26,6 +26,6 @@ class ItemRepo:
 
     def save(self, itemsSet):
         itemsList = list(itemsSet)
-        fp = open(self.repoFileName, "w")
+        fp = open(self.storagePath + self.repoFileName + ".json", "w")
         fp.write(json.dumps(itemsList, indent=4, cls=AmazonItemEncoder))
         fp.close()
