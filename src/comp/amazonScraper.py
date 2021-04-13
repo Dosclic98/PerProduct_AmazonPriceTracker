@@ -7,6 +7,7 @@ import urllib.parse
 from bs4 import BeautifulSoup
 from price_parser import Price
 from decimal import Decimal
+import re
 
 class AmazonScraper:
 
@@ -97,6 +98,10 @@ class AmazonScraper:
             usedPrice = Price.fromstring(usedPriceCont[0].get_text()) if len(usedPriceCont) != 0 else None
         else:
             usedPrice = None
+        
+        discRegex = re.compile("[\d]+")
+        discList = div.findAll("span", {"class":"s-coupon-highlight-color"})
+        discount = None if len(discList) == 0 else int(discRegex.findall(discList[0].get_text())[0])
 
         isPrime = False if len(div.findAll("i", {"class":"a-icon a-icon-prime a-icon-medium"})) == 0 else True
 
@@ -115,11 +120,12 @@ class AmazonScraper:
             else:
                 print("Price: Unknown")
             if(usedPrice != None):
-                print("usedPrice: " + str(usedPrice.amount_text) + " " + str(usedPrice.currency))        
+                print("usedPrice: " + str(usedPrice.amount_text) + " " + str(usedPrice.currency))     
+            print("Discount: " + str(discount))   
             print("IsPrime: " + str(isPrime))
             print(" ")
         
-        return AmazonItem(id, title, stars, objLink, imgLink, price, usedPrice, isPrime)
+        return AmazonItem(id, title, stars, objLink, imgLink, price, usedPrice, discount, isPrime)
 
     def parseStarStr(self, strStar):
         if strStar == None: return None

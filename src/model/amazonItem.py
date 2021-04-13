@@ -6,7 +6,7 @@ from price_parser import Price
 
 class AmazonItem:
 
-    def __init__(self, id, title = None, stars = None, objLink=None, imgLink = None, price = None, usedPrice = None, isPrime = None, ueDate = datetime.datetime.now()):
+    def __init__(self, id, title = None, stars = None, objLink=None, imgLink = None, price = None, usedPrice = None, discount = None, isPrime = None, ueDate = datetime.datetime.now()):
         self.id = id
         self.title = title
         self.stars = stars
@@ -14,6 +14,7 @@ class AmazonItem:
         self.imgLink = imgLink
         self.price = price
         self.usedPrice = usedPrice
+        self.discount = discount
         self.isPrime = isPrime
         self.ueDate = ueDate
 
@@ -27,7 +28,7 @@ class AmazonItem:
                             datetime.datetime.fromisoformat(jsonDict[AmazonItemKeys.ueDate]))
     
     def __str__(self):
-        return AmazonItemKeys.id + ": " + self.id + "\n" + AmazonItemKeys.imgLink + ": " + self.imgLink + "\n" + AmazonItemKeys.objLink + ": " + self.objLink + "\n" + AmazonItemKeys.title + ": " + self.title + "\n" + AmazonItemKeys.stars + ": " + str(self.stars) + "\n" + AmazonItemKeys.price + ": " + str(self.price) + "\n" + AmazonItemKeys.usedPrice + ": " + str(self.usedPrice) + "\n" + AmazonItemKeys.isPrime + ": " + str(self.isPrime) + "\n" + AmazonItemKeys.ueDate + ": " + self.ueDate.isoformat() + "\n"
+        return AmazonItemKeys.id + ": " + self.id + "\n" + AmazonItemKeys.imgLink + ": " + self.imgLink + "\n" + AmazonItemKeys.objLink + ": " + self.objLink + "\n" + AmazonItemKeys.title + ": " + self.title + "\n" + AmazonItemKeys.stars + ": " + str(self.stars) + "\n" + AmazonItemKeys.price + ": " + str(self.price) + "\n" + AmazonItemKeys.usedPrice + ": " + str(self.usedPrice) + "\n" + AmazonItemKeys.discount + ": " + str(self.discount) + "\n" + AmazonItemKeys.isPrime + ": " + str(self.isPrime) + "\n" + AmazonItemKeys.ueDate + ": " + self.ueDate.isoformat() + "\n"
     
     def __eq__(self, other):
         if isinstance(other, AmazonItem):
@@ -44,7 +45,7 @@ class AmazonItem:
         if isinstance(other, AmazonItem):
             isPriceEqual = self.isPriceEq(self.price, other.price)
             isUsedPriceEqual = self.isPriceEq(self.usedPrice, other.usedPrice)
-            return self.id == other.id and self.title == other.title and self.stars == other.stars and self.objLink == other.objLink and self.imgLink == other.imgLink and isPriceEqual and isUsedPriceEqual and self.isPrime == other.isPrime and self.ueDate.isoformat() == other.ueDate.isoformat()
+            return self.id == other.id and self.title == other.title and self.stars == other.stars and self.objLink == other.objLink and self.imgLink == other.imgLink and isPriceEqual and isUsedPriceEqual and self.discount == other.discount and self.isPrime == other.isPrime and self.ueDate.isoformat() == other.ueDate.isoformat()
         return False        
 
     def isPriceEq(self, thisPrice, thatPrice):
@@ -75,8 +76,9 @@ class AmazonItemEncoder(JSONEncoder):
                     AmazonItemKeys.priceCurrency : None if o.price == None else o.price.currency,
                     AmazonItemKeys.usedPriceAmount : None if o.usedPrice == None else o.usedPrice.amount_float,
                     AmazonItemKeys.usedPriceCurrency : None if o.usedPrice == None else o.usedPrice.currency,
+                    AmazonItemKeys.discount : o.discount,
                     AmazonItemKeys.isPrime :o.isPrime,
-                    AmazonItemKeys.ueDate :o.ueDate.isoformat(),
+                    AmazonItemKeys.ueDate :o.ueDate.isoformat()
                 }
 
 class AmazonItemKeys:
@@ -91,5 +93,6 @@ class AmazonItemKeys:
     usedPrice = "usedPrice"
     usedPriceAmount = "usedPriceAmount"
     usedPriceCurrency = "usedPriceCurrency"
+    discount = "discount"
     isPrime = "isPrime"
     ueDate = "ueDate"
