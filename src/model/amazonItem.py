@@ -24,7 +24,7 @@ class AmazonItem:
         price = None if jsonDict[AmazonItemKeys.priceAmount] == None or jsonDict[AmazonItemKeys.priceCurrency] == None else Price.fromstring(str(jsonDict[AmazonItemKeys.priceAmount]) + " " + jsonDict[AmazonItemKeys.priceCurrency]) 
         usedPrice = None if jsonDict[AmazonItemKeys.usedPriceAmount] == None or jsonDict[AmazonItemKeys.usedPriceCurrency] == None else Price.fromstring(str(jsonDict[AmazonItemKeys.usedPriceAmount]) + " " + jsonDict[AmazonItemKeys.usedPriceCurrency])
         return AmazonItem(jsonDict[AmazonItemKeys.id], jsonDict[AmazonItemKeys.title], jsonDict[AmazonItemKeys.stars], jsonDict[AmazonItemKeys.objLink], 
-                            jsonDict[AmazonItemKeys.imgLink], price, usedPrice, jsonDict[AmazonItemKeys.isPrime], 
+                            jsonDict[AmazonItemKeys.imgLink], price, usedPrice, jsonDict[AmazonItemKeys.discount], jsonDict[AmazonItemKeys.isPrime], 
                             datetime.datetime.fromisoformat(jsonDict[AmazonItemKeys.ueDate]))
     
     def __str__(self):
@@ -62,6 +62,10 @@ class AmazonItem:
         else:
             if(thisPrice is None and thatPrice is None): return True
             else: return False    
+
+    @staticmethod
+    def takeId(obj):
+        return obj.id
 
 class AmazonItemEncoder(JSONEncoder):
 
