@@ -16,6 +16,7 @@ class ItemRepo:
         try:
             fp = open(self.storagePath + self.repoFileName + ".json", "r")
             dic = json.load(fp)
+            fp.close()
         except (FileNotFoundError, ValueError):
             return savedItems
 
@@ -25,7 +26,7 @@ class ItemRepo:
         return savedItems
 
     def save(self, itemsSet):
-        itemsList = list(itemsSet)
+        itemsList = sorted(list(itemsSet), key=AmazonItem.takeId)
         fp = open(self.storagePath + self.repoFileName + ".json", "w")
         fp.write(json.dumps(itemsList, indent=4, cls=AmazonItemEncoder))
         fp.close()
