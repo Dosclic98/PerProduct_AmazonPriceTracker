@@ -60,7 +60,10 @@ class AmazonScraper:
         if linkTitle["href"] == None:
             return None
         else:
-            affTag = json.load(open(self.affInfoPathFile))
+            fp = open(self.affInfoPathFile)
+            affTag = json.load(fp)
+            fp.close()
+
             objLinkAsUrl = list(urllib.parse.urlparse(self.baseUrlRedirect + linkTitle["href"]))
             query = dict(urllib.parse.parse_qsl(objLinkAsUrl[4]))
             query.update(affTag)
