@@ -2,26 +2,45 @@
 
 from src.model.amazonItem import AmazonItem, AmazonItemEncoder
 from src.comp.amazonScraper import AmazonScraper
-import json
 from src.comp.itemsRepository import ItemRepo
 from src.comp.telegramSender import TeleBotSender, MessageBuilder
+import json
+import argparse
 
 bot = None
 
 def main():
-    # TODO Introduction of parameter system for command line execution
-    # TODO Add method to initialize repository doing 5 sequential execution of the program (to completely fill the repository) 
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-repo", "-r", dest="repo", nargs=1, type=str, help="name of the file where the products will be stored (no .json extension needed)", required=True)
+    parser.add_argument("-channel", "-c", dest="channel", nargs=1, type=str, help="name of the channel where the bot must send the generated messages (usually formatted as @channelName)", required=True)
+    parser.add_argument("-queries", "-q", dest="queries", nargs="+", type=str, help="various queries (list of keywords) that the bot must monitor", required=True)
+    parser.add_argument("--init", dest="initlz", action="store_true", help="use this parameter to specify if you want to initialize the reposotory doing 5 sequential run of the algorithm")
+    parser.add_argument("--debug", dest="debug", action="store_true", help="print additional informations for debug purposes")
+    parser.set_defaults(initlz=False)
+    parser.set_defaults(debug=False)
+    args = parser.parse_args()
+    repoFileName = args.repo[0]
+    queries = args.queries
+    channelName = args.channel[0]
+    
+    if args.initlz:
+        for i in ragne(5):
+            botLoop(channelName, repoFileName, queries, args.debug)
+    else:
+        botLoop(channelName, repoFileName, queries, args.debug)
+
+def botLoop(channelName, repoFileName, queries, debug=False):
     global bot
-    bot = TeleBotSender("@OfferteStorage")
+    if bot == None:
+        bot = TeleBotSender(channelName)
 
     scraper = AmazonScraper()
-    foundItemsSet = scraper.searchItems("ssd hard disk")
-    repoFileName = "lolData"
+    foundItemsSet = scraper.searchItemsMultipleQuery(queries, debug=debug)
     repo = ItemRepo(repoFileName)
     repoItemsSet = repo.load()
     print(len(foundItemsSet))
     itemsToStore = updateRepo(repoItemsSet, foundItemsSet)
-    repo.save(itemsToStore)
+    repo.save(itemsToStore) 
 
 def updateRepo(savedItems, retrievedItems):
     global bot
@@ -44,22 +63,11 @@ def updateRepo(savedItems, retrievedItems):
                 # Found a new discount
                 bot.sendMessage(MessageBuilder.newDiscountFound(item))
             elif (( ((item.price != None and storedItem.price != None) and (item.price.amount_float < storedItem.price.amount_float)) or 
-                    (item.price != None and storedItem.price == None)) and
+                    (item.price != None and storedItem.price == None)) or
                 ( ((item.usedPrice != None and storedItem.usedPrice != None) and (item.usedPrice.amount_float < storedItem.usedPrice.amount_float)) or
                     (item.usedPrice != None and storedItem.usedPrice == None))):
-                # Bot new price and used price have gotten "better"
+                # New price or used price have gotten "better"
                 bot.sendMessage(MessageBuilder.betterPriceFound(stored=storedItem, obj=item))
-            elif ( ((item.price != None and storedItem.price != None) and (item.price.amount_float < storedItem.price.amount_float)) or 
-                    (item.price != None and storedItem.price == None)):
-                # TODO Only new peice has gotten better
-                pass
-            elif ( ((item.usedPrice != None and storedItem.usedPrice != None) and (item.usedPrice.amount_float < storedItem.usedPrice.amount_float)) or
-                    (item.usedPrice != None and storedItem.usedPrice == None)):
-                # TODO only used price has goten better
-                pass
-            else:
-                # Just store the result without having to notify
-                pass
         setToStore.add(item)
     for stItem in savedItems:
         if not setToStore.__contains__(stItem):
