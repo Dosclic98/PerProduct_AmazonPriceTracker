@@ -24,7 +24,7 @@ def main():
     channelName = args.channel[0]
     
     if args.initlz:
-        for i in ragne(5):
+        for i in range(5):
             botLoop(channelName, repoFileName, queries, args.debug)
     else:
         botLoop(channelName, repoFileName, queries, args.debug)
@@ -63,10 +63,8 @@ def updateRepo(savedItems, retrievedItems):
                 # Found a new discount
                 bot.sendMessage(MessageBuilder.newDiscountFound(item))
             elif (( ((item.price != None and storedItem.price != None) and (item.price.amount_float < storedItem.price.amount_float)) or 
-                    (item.price != None and storedItem.price == None)) or
-                ( ((item.usedPrice != None and storedItem.usedPrice != None) and (item.usedPrice.amount_float < storedItem.usedPrice.amount_float)) or
-                    (item.usedPrice != None and storedItem.usedPrice == None))):
-                # New price or used price have gotten "better"
+                    (item.price != None and storedItem.price == None)) ):
+                # New price has gotten "better" (used price notification removed due to Amazon used price showing policy)
                 bot.sendMessage(MessageBuilder.betterPriceFound(stored=storedItem, obj=item))
         setToStore.add(item)
     for stItem in savedItems:

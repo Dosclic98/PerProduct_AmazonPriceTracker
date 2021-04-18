@@ -134,14 +134,6 @@ class MessageBuilder:
                 baseStr += (priceStr.format(str("%.2f" % (obj.price.amount_float - (obj.price.amount_float * (obj.discount/100)))) + " " + str(obj.price.currency)) + " appena aggiunto" + discStr.format(str(obj.discount)))
             else:
                 baseStr += priceStr.format(str("%.2f" % obj.price.amount_float) + " " + str(obj.price.currency) + " appena aggiunto!")
-        # If the used price has gotten better or a new used element has been added
-        if(stored.usedPrice != None and stored.usedPrice.amount_float != None and stored.usedPrice.currency != None and obj.usedPrice != None and obj.usedPrice.amount_float != None and obj.usedPrice.currency != None):
-            if stored.usedPrice.amount_float > obj.usedPrice.amount_float:
-                baseStr += usedPriceStr.format(str("%.2f" % obj.usedPrice.amount_float) + " " + str(obj.usedPrice.currency) + " invece di " + str("%.2f" % stored.usedPrice.amount_float) + " " + str(stored.usedPrice.currency))
-            else:
-                baseStr += usedPriceStr.format(str("%.2f" % obj.usedPrice.amount_float) + " " + str(obj.usedPrice.currency))
-        elif(stored.usedPrice == None and obj.usedPrice != None and obj.usedPrice.amount_float != None and obj.usedPrice.currency != None):
-            baseStr += usedPriceStr.format(str("%.2f" % obj.usedPrice.amount_float) + " " + str(obj.usedPrice.currency) + " appena aggiunto!")
 
         starsStr = "\n" + MessageBuilder.starEmoji + "  {}"+ " / 5"
         if(obj.stars != None):
