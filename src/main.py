@@ -6,9 +6,13 @@ from src.comp.itemsRepository import ItemRepo
 from src.comp.telegramSender import TeleBotSender, MessageBuilder
 import json
 import argparse
+import time
+import sys, traceback, os
+
 
 bot = None
 
+# TODO Add a Daemon mode where the program is executed continuously every specified delay
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("-repo", "-r", dest="repo", nargs=1, type=str, help="name of the file where the products will be stored (no .json extension needed)", required=True)
@@ -16,16 +20,31 @@ def main():
     parser.add_argument("-queries", "-q", dest="queries", nargs="+", type=str, help="various queries (list of keywords) that the bot must monitor", required=True)
     parser.add_argument("--init", dest="initlz", action="store_true", help="use this parameter to specify if you want to initialize the reposotory doing 5 sequential run of the algorithm")
     parser.add_argument("--debug", dest="debug", action="store_true", help="print additional informations for debug purposes")
+    parser.add_argument("--daemon", dest="daemon", action="store_true", help="start the program in daemon mode, where the price checking will be executed every, at most, 'delay' seconds (if not specified the delay will be 60 seconds)")
+    parser.add_argument("-delay", dest="delay", nargs=1, type=int, help="delay used when de daemon parameter is specified")
     parser.set_defaults(initlz=False)
     parser.set_defaults(debug=False)
+    parser.set_defaults(daemon=False)
     args = parser.parse_args()
     repoFileName = args.repo[0]
     queries = args.queries
     channelName = args.channel[0]
+    delay = args.delay[0] if args.delay else 60
     
     if args.initlz:
         for i in range(5):
             botLoop(channelName, repoFileName, queries, args.debug)
+    elif args.daemon:
+        while True:
+            botLoop(channelName, repoFileName, queries, args.debug)
+            try:
+                time.sleep(delay)
+            except KeyboardInterrupt:
+                print("Interrupted")
+                try:
+                    sys.exit(0)
+                except SystemExit:
+                    os._exit(0)                
     else:
         botLoop(channelName, repoFileName, queries, args.debug)
 
@@ -33,20 +52,25 @@ def botLoop(channelName, repoFileName, queries, debug=False):
     global bot
     if bot == None:
         bot = TeleBotSender(channelName)
-
+    print("** Starting loop execution **")
     scraper = AmazonScraper()
+    print("Searching for updates...")
     foundItemsSet = scraper.searchItemsMultipleQuery(queries, debug=debug)
+    print("   Found: " + str(len(foundItemsSet)) + (" item" if len(foundItemsSet) == 1 else " items"))
     repo = ItemRepo(repoFileName)
+    print("Retrieving stored items...")
     repoItemsSet = repo.load()
-    print(len(foundItemsSet))
+    print("   Found: " + str(len(repoItemsSet)) + (" item" if len(repoItemsSet) == 1 else " items"))
+    print("Sending messages...")
     itemsToStore = updateRepo(repoItemsSet, foundItemsSet)
     repo.save(itemsToStore) 
+    print("Storing results...")
+    print("** Ending loop execution **")
 
 def updateRepo(savedItems, retrievedItems):
     global bot
     setToStore = set()
     savedItemsMap = buildItemsMap(savedItems)
-    print(len(savedItemsMap))
     for item in retrievedItems:
         # 1) Retrieve the item if stored before
         storedItem = None

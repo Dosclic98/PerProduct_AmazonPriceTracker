@@ -11,6 +11,8 @@ class ItemRepo:
     def __init__(self, repoFileName):
         self.repoFileName = repoFileName
 
+    # TODO Method for cleaning old objects in the repository (objects updated more than one month ago)
+
     def load(self):
         savedItems = set()
         try:
