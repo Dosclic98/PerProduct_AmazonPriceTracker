@@ -8,6 +8,7 @@ from src.keepAlive import keep_alive
 import json
 import argparse
 import time
+import random
 import sys, traceback, os
 
 
@@ -41,7 +42,8 @@ def main():
         while True:
             botLoop(channelName, repoFileName, queries, args.debug)
             try:
-                time.sleep(delay)
+                # Adding randomization of delay
+                time.sleep(delay + random.randint(5, 10))
             except KeyboardInterrupt:
                 print("Interrupted")
                 try:
@@ -92,6 +94,7 @@ def updateRepo(savedItems, retrievedItems):
             elif (( ((item.price != None and storedItem.price != None) and (item.price.amount_float < storedItem.price.amount_float)) or 
                     (item.price != None and storedItem.price == None)) ):
                 # New price has gotten "better" (used price notification removed due to Amazon used price showing policy)
+                # TODO Send notification only if the price has dropped 'significantly'
                 bot.sendMessage(MessageBuilder.betterPriceFound(stored=storedItem, obj=item))
         setToStore.add(item)
     for stItem in savedItems:

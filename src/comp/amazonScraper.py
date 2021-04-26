@@ -7,8 +7,11 @@ import urllib.parse
 from bs4 import BeautifulSoup
 from price_parser import Price
 from decimal import Decimal
+import random
 import re
+import time
 
+# TODO Add an header randomizer to generate a wider variety of headers
 class AmazonScraper:
 
     baseUrlRedirect = "https://www.amazon.it"
@@ -29,9 +32,13 @@ class AmazonScraper:
 
     def searchItemsMultipleQuery(self, queryStrList, debug = False):
         setToRet = set()
+        # Randomizing order of queryes
+        random.shuffle(queryStrList)
         for queryStr in queryStrList:
             foundItems = self.searchItems(queryStr, debug=debug)
             setToRet = setToRet.union(foundItems)
+            # Randomizer to randomly separate requests in time
+            time.sleep(random.randint(4,8))
         return setToRet
 
     def searchItemsMultiplePage(self, queryStr, maxPage = 1, debug = False):
@@ -39,6 +46,8 @@ class AmazonScraper:
         for numPage in range(1, maxPage + 1):
             foundItems = self.searchItems(queryStr, page=numPage, debug=debug)
             setToRet = setToRet.union(foundItems)
+            # Randomizer to randomly separate requests in time
+            time.sleep(random.randint(4,8))
         return setToRet
 
 
@@ -47,7 +56,7 @@ class AmazonScraper:
             raise ValueError("Parameter page must be greater than 0")
 
         foundItems = set()
-        
+
         complUrl = self.baseUrl + self.searchUrlPart + self.searchKey + "=" + urllib.parse.quote_plus(queryStr) + self.pageParam + str(page)
         r = requests.get(complUrl, headers=self.headers)
         soup = BeautifulSoup(r.content, features="html5lib")
