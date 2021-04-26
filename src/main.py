@@ -4,6 +4,7 @@ from src.model.amazonItem import AmazonItem, AmazonItemEncoder
 from src.comp.amazonScraper import AmazonScraper
 from src.comp.itemsRepository import ItemRepo
 from src.comp.telegramSender import TeleBotSender, MessageBuilder
+from src.keepAlive import keep_alive
 import json
 import argparse
 import time
@@ -30,7 +31,9 @@ def main():
     queries = args.queries
     channelName = args.channel[0]
     delay = args.delay[0] if args.delay else 60
-    
+    print(queries)
+    keep_alive()
+
     if args.initlz:
         for i in range(5):
             botLoop(channelName, repoFileName, queries, args.debug)
