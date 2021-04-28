@@ -91,10 +91,9 @@ def updateRepo(savedItems, retrievedItems):
             if item.discount != None and ((storedItem.discount == None) or (storedItem.discount != None and item.discount > storedItem.discount)):
                 # Found a new discount
                 bot.sendMessage(MessageBuilder.newDiscountFound(item))
-            elif (( ((item.price != None and storedItem.price != None) and (item.price.amount_float < storedItem.price.amount_float)) or 
+            elif (( ((item.price != None and storedItem.price != None) and (isPriceBetter(storedItem.price.amount_float, item.price.amount_float))) or 
                     (item.price != None and storedItem.price == None)) ):
                 # New price has gotten "better" (used price notification removed due to Amazon used price showing policy)
-                # TODO Send notification only if the price has dropped 'significantly'
                 bot.sendMessage(MessageBuilder.betterPriceFound(stored=storedItem, obj=item))
         setToStore.add(item)
     for stItem in savedItems:
@@ -102,6 +101,10 @@ def updateRepo(savedItems, retrievedItems):
             setToStore.add(stItem)
             
     return setToStore
+
+def isPriceBetter(storedPrice, foundPrice):
+    return foundPrice < (storedPrice - (storedPrice * (8/100)))
+
 
 def buildItemsMap(savedItems):
     itemsMap = {}
